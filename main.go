@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"github.com/cju5025/fiber-with-gorm/book"
 	"github.com/cju5025/fiber-with-gorm/database"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 func helloWorld(c *fiber.Ctx) error {
@@ -17,8 +20,20 @@ func setupRoutes(app *fiber.App) {
 	app.Delete("/books/:id", book.DeleteBook)
 }
 
+func initDatabase() {
+	var err error
+	database.DBConn, err = gorm.Open(sqlite.Open("books.db"), &gorm.Config{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("Database connection successfully opened.")
+}
+
 func main() {
 	app := fiber.New()
+
+	initDatabase()
+	// defer database.DBConn.Close()
 
 	setupRoutes(app)
 
